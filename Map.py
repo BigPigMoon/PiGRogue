@@ -22,9 +22,10 @@ class Map():
                 ]
                 for _ in range(10):
                     self.create_area(
-                        randint(0, self.chunk_size), randint(0, self.chunk_size),
+                        randint(0, self.chunk_size),
+                        randint(0, self.chunk_size),
                         "tree", i, j
-                        )                
+                    )
 
     def create_area(self, x, y, tile_type, chunk_x, chunk_y):
         chunk = self.world[chunk_x][chunk_y].area

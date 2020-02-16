@@ -20,7 +20,7 @@ class View():
                 cell = chunk.area[i][j]
                 terminal.color(cell.color)
                 terminal.put(x, y, cell.type[0].upper())
-                x+= 1
+                x += 1
             y += 1
             x = 0
 
