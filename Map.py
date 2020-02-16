@@ -4,11 +4,11 @@ from bearlibterminal import terminal
 
 
 class Map():
-    def __init__(self, world_size):
+    def __init__(self, chunk_size):
         self.chunk_num = 3
-        self.chunk_size = 64
+        self.chunk_size = chunk_size
         self.world = [
-                [Chank() for _ in range(self.chunk_num)]
+                [Chunk() for _ in range(self.chunk_num)]
                 for _ in range(self.chunk_num)
             ]
         self.create_world()
@@ -24,18 +24,7 @@ class Map():
                     self.create_area(
                         randint(0, self.chunk_size), randint(0, self.chunk_size),
                         "tree", i, j
-                        )
-        
-
-    def draw(self, chunk_x, chunk_y):
-        for i in range(0, self.chunk_size):
-            for j in range(0, self.chunk_size):
-                terminal.layer(1)
-                cell = self.world[chunk_x][chunk_y].area[i][j]
-                terminal.color(cell.color)
-                terminal.put(i, j, cell.type[0].upper())
-                terminal.color("white")
-                terminal.layer(0)
+                        )                
 
     def create_area(self, x, y, tile_type, chunk_x, chunk_y):
         chunk = self.world[chunk_x][chunk_y].area
@@ -87,6 +76,6 @@ class Tile():
         self.color = color
 
 
-class Chank():
+class Chunk():
     def __init__(self):
         self.area = list(list())
