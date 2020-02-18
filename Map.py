@@ -8,7 +8,7 @@ class Map():
         self.chunk_num = 5
         self.chunk_size = 128
         self.world = [
-                [Chunk() for _ in range(self.chunk_num)]
+                [Chunk(self.chunk_size) for _ in range(self.chunk_num)]
                 for _ in range(self.chunk_num)
             ]
 
@@ -21,16 +21,18 @@ class Map():
                     [Tile("grass", "white") for _ in range(self.chunk_size)]
                     for _ in range(self.chunk_size)
                 ]
-                for _ in range(20):
-                    self.create_area(
-                        randint(0, self.chunk_size),
-                        randint(0, self.chunk_size),
-                        "tree", "green", i, j
-                    )
 
-    def create_area(self, x, y, tile_type, color, chunk_x, chunk_y):
-        i = x
-        j = y
+        for i in range(self.chunk_num):
+            for j in range(self.chunk_num):
+                for _ in range(20):
+                    self.create_area("tree", "green", i, j)
+                
+                for _ in range(3):
+                    self.create_area("lake", "blue", i, j)
+
+    def create_area(self, tile_type, color, chunk_x, chunk_y):
+        i = randint(0, self.chunk_size)
+        j = randint(0, self.chunk_size)
         for _ in range(40):
             chunk = self.world[chunk_x][chunk_y].area
 
@@ -38,39 +40,81 @@ class Map():
             w = randint(1, 3)
             e = randint(1, 3)
             s = randint(1, 3)
+            try:
+                if n == 1:
+                    i -= 1
 
-            if n == 1:
-                i -= 1
-                if j >= self.chunk_size:
-                    j = 0
-                if i >= self.chunk_size:
-                    i = 0
-                chunk[i][j].type = tile_type
-                chunk[i][j].color = color
-            if s == 1:
-                i += 1
-                if i >= self.chunk_size:
-                    i = 0
-                if j >= self.chunk_size:
-                    j = 0
-                chunk[i][j].type = tile_type
-                chunk[i][j].color = color
-            if w == 1:
-                j -= 1
-                if j >= self.chunk_size:
-                    j = 0
-                if i >= self.chunk_size:
-                    i = 0
-                chunk[i][j].type = tile_type
-                chunk[i][j].color = color
-            if e == 1:
-                j += 1
-                if j >= self.chunk_size:
-                    j = 0
-                if i >= self.chunk_size:
-                    i = 0
-                chunk[i][j].type = tile_type
-                chunk[i][j].color = color
+                    i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
+                    chunk[i][j].type = tile_type
+                    chunk[i][j].color = color
+
+                    chunk = self.world[chunk_x][chunk_y].area
+
+                if s == 1:
+                    i += 1
+
+                    i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
+
+                    chunk[i][j].type = tile_type
+                    chunk[i][j].color = color
+
+                    chunk = self.world[chunk_x][chunk_y].area
+
+                if w == 1:
+                    j -= 1
+
+                    i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
+
+                    chunk[i][j].type = tile_type
+                    chunk[i][j].color = color
+
+                    chunk = self.world[chunk_x][chunk_y].area
+
+                if e == 1:
+                    j += 1
+
+                    i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
+
+                    chunk[i][j].type = tile_type
+                    chunk[i][j].color = color
+
+                    chunk = self.world[chunk_x][chunk_y].area
+            except IndexError:
+                print("EROR: landspace generator")
+
+
+    def check_i_j(self, i, j, chunk, chunk_x, chunk_y):
+        if i >= self.chunk_size:
+            chunk_x += 1
+            if chunk_x + 1 > self.chunk_num:
+                chunk_x = 0
+
+            chunk = self.world[chunk_x][chunk_y].area
+            i = 0
+        if j >= self.chunk_size:
+            chunk_y += 1
+            if chunk_y + 1 > self.chunk_num:
+                chunk_y = 0
+
+            chunk = self.world[chunk_x][chunk_y].area
+            j = 0
+        
+        if i < 0:
+            chunk_x -= 1
+            if chunk_x < 0:
+                chunk_x = self.chunk_num - 1
+    
+            chunk = self.world[chunk_x][chunk_y].area
+            i = self.chunk_size - 1
+        if j < 0:
+            chunk_y -= 1
+            if chunk_y < 0:
+                chukn_y = self.chunk_num - 1
+
+            chunk = self.world[chunk_x][chunk_y].area
+            j = self.chunk_size - 1
+        
+        return i, j, chunk
 
 
 class Tile():
@@ -81,5 +125,6 @@ class Tile():
 
 
 class Chunk():
-    def __init__(self):
+    def __init__(self, size):
         self.area = list(list())
+        self.size = size

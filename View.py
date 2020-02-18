@@ -4,17 +4,30 @@ from Map import Chunk
 
 
 class View():
-    def __init__(self, player, x=0, y=0):
+    def __init__(self, player):
         self.w = 50
         self.h = 50
-        self.x = x
-        self.y = y
+
+        self.x = player.x - self.w // 2 + 1
+        self.y = player.y - self.h // 2 + 1
+
+        if self.x < 0:
+            self.x = 0
+        if self.y < 0:
+            self.y = 0
+
         self.player = player
 
     def draw(self, chunk):
         x = 0
         y = 0
         terminal.layer(1)
+
+        if self.x > chunk.size - self.w:
+            self.x = chunk.size - self.w
+        if self.y > chunk.size - self.h:
+            self.y = chunk.size - self.h
+
         for j in range(self.y, self.h + self.y):
             for i in range(self.x, self.w + self.x):
                 cell = chunk.area[i][j]

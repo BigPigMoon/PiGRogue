@@ -10,9 +10,9 @@ class Game():
         self.turn_counter = -1
         self.game_flag = True
 
-        self.player = Player()
-        self.map = Map()
+        self.player = Player(45, 55)
         self.view = View(self.player)
+        self.map = Map()
 
         self.chunk_size = self.map.chunk_size
         self.chunk_x = 3
@@ -29,6 +29,9 @@ class Game():
             self.game_input()
 
             self.view.draw(self.load_chunk)
+
+            terminal.printf(52, 1, f"view x:{self.view.x}, y:{self.view.y}")
+            terminal.printf(52, 3, f"player x:{self.player.x}, y:{self.player.y}")
 
             terminal.refresh()
             terminal.clear()
