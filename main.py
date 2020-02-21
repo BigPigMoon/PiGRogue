@@ -3,7 +3,7 @@ from bearlibterminal import terminal
 from Player import *
 from Map import Map
 from View import View
-
+from GenDungeon import Dungeon
 
 class Game():
     def __init__(self):
@@ -11,6 +11,7 @@ class Game():
         self.game_flag = True
 
         self.player = Player(45, 55)
+        self.dungeon = Dungeon(50, 60, self.player)
         self.view = View(self.player)
         self.map = Map()
 
@@ -28,7 +29,11 @@ class Game():
         while self.game_flag:
             self.game_input()
 
-            self.view.draw(self.load_chunk)
+            # self.view.draw(self.load_chunk)
+
+            self.dungeon.draw()
+            self.dungeon.check_player()
+            terminal.layer(0)
 
             terminal.printf(52, 1, f"view x:{self.view.x}, y:{self.view.y}")
             terminal.printf(52, 3, f"player x:{self.player.x}, y:{self.player.y}")

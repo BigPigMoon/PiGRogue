@@ -18,35 +18,44 @@ class Map():
         for i in range(self.chunk_num):
             for j in range(self.chunk_num):
                 self.world[i][j].area = [
-                    [Tile("grass", "white") for _ in range(self.chunk_size)]
+                    [Tile("grass", "white", False) for _ in range(self.chunk_size)]
                     for _ in range(self.chunk_size)
                 ]
 
         for i in range(self.chunk_num):
             for j in range(self.chunk_num):
-                for _ in range(20):
-                    self.create_area("tree", "green", i, j)
-                
-                for _ in range(3):
-                    self.create_area("lake", "blue", i, j)
+                for _ in range(int(0.46875 * self.chunk_size)):
+                    self.create_area(
+                        Tile("tree", "green", False),
+                        2, i, j
+                        )
 
-    def create_area(self, tile_type, color, chunk_x, chunk_y):
+                for _ in range(int(self.chunk_size * 0.0234375)):
+                    self.create_area(
+                        Tile("lake", "blue", True),
+                        4, i, j
+                        )
+
+    def create_area(self, tile, radius, chunk_x, chunk_y):
         i = randint(0, self.chunk_size)
         j = randint(0, self.chunk_size)
-        for _ in range(40):
+
+        if radius == 1:
+            radius = 2
+
+        for _ in range(100):
             chunk = self.world[chunk_x][chunk_y].area
 
-            n = randint(1, 3)
-            w = randint(1, 3)
-            e = randint(1, 3)
-            s = randint(1, 3)
+            n = randint(1, radius)
+            w = randint(1, radius)
+            e = randint(1, radius)
+            s = randint(1, radius)
             try:
                 if n == 1:
                     i -= 1
 
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-                    chunk[i][j].type = tile_type
-                    chunk[i][j].color = color
+                    chunk[i][j] = tile
 
                     chunk = self.world[chunk_x][chunk_y].area
 
@@ -55,8 +64,7 @@ class Map():
 
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
 
-                    chunk[i][j].type = tile_type
-                    chunk[i][j].color = color
+                    chunk[i][j] = tile
 
                     chunk = self.world[chunk_x][chunk_y].area
 
@@ -65,8 +73,7 @@ class Map():
 
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
 
-                    chunk[i][j].type = tile_type
-                    chunk[i][j].color = color
+                    chunk[i][j] = tile
 
                     chunk = self.world[chunk_x][chunk_y].area
 
@@ -75,8 +82,7 @@ class Map():
 
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
 
-                    chunk[i][j].type = tile_type
-                    chunk[i][j].color = color
+                    chunk[i][j] = tile
 
                     chunk = self.world[chunk_x][chunk_y].area
             except IndexError:
@@ -118,10 +124,11 @@ class Map():
 
 
 class Tile():
-    def __init__(self, tile_type, color, objects=[]):
+    def __init__(self, tile_type, color, block, objects=[]):
         self.type = tile_type
         self.on_tile = objects
         self.color = color
+        self.block = block
 
 
 class Chunk():
