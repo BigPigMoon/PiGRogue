@@ -35,6 +35,8 @@ class Map():
                         Tile("lake", "blue", True),
                         4, i, j
                         )
+                
+                self.world[i][j].create_dungeon_enter()
 
     def create_area(self, tile, radius, chunk_x, chunk_y):
         i = randint(0, self.chunk_size)
@@ -53,37 +55,26 @@ class Map():
             try:
                 if n == 1:
                     i -= 1
-
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
                     chunk[i][j] = tile
-
                     chunk = self.world[chunk_x][chunk_y].area
 
                 if s == 1:
                     i += 1
-
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-
                     chunk[i][j] = tile
-
                     chunk = self.world[chunk_x][chunk_y].area
 
                 if w == 1:
                     j -= 1
-
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-
                     chunk[i][j] = tile
-
                     chunk = self.world[chunk_x][chunk_y].area
 
                 if e == 1:
                     j += 1
-
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-
                     chunk[i][j] = tile
-
                     chunk = self.world[chunk_x][chunk_y].area
             except IndexError:
                 print("EROR: landspace generator")
@@ -92,9 +83,9 @@ class Map():
     def check_i_j(self, i, j, chunk, chunk_x, chunk_y):
         if i >= self.chunk_size:
             chunk_x += 1
+
             if chunk_x + 1 > self.chunk_num:
                 chunk_x = 0
-
             chunk = self.world[chunk_x][chunk_y].area
             i = 0
         if j >= self.chunk_size:
@@ -135,3 +126,13 @@ class Chunk():
     def __init__(self, size):
         self.area = list(list())
         self.size = size
+    
+    def create_dungeon_enter(self):
+        from GenDungeon import Dungeon
+        
+        self.dungeon_x = 50
+        self.dungeon_y = 60
+        self.area[self.dungeon_x][self.dungeon_y] = Tile("dungeon", "red", False)
+        self.dungeon = Dungeon()
+
+

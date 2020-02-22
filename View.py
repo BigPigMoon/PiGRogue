@@ -2,21 +2,24 @@ from bearlibterminal import terminal
 
 from Map import Chunk
 
+from GenDungeon import Dungeon
 
 class View():
     def __init__(self, player):
         self.w = 50
         self.h = 50
+        self.player = player
 
-        self.x = player.x - self.w // 2 + 1
-        self.y = player.y - self.h // 2 + 1
+        self.update()
+
+    def update(self):
+        self.x = self.player.x - self.w // 2 + 1
+        self.y = self.player.y - self.h // 2 + 1
 
         if self.x < 0:
             self.x = 0
         if self.y < 0:
             self.y = 0
-
-        self.player = player
 
     def draw(self, chunk):
         x = 0

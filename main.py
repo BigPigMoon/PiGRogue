@@ -11,7 +11,6 @@ class Game():
         self.game_flag = True
 
         self.player = Player(45, 55)
-        self.dungeon = Dungeon(50, 60, self.player)
         self.view = View(self.player)
         self.map = Map()
 
@@ -29,11 +28,10 @@ class Game():
         while self.game_flag:
             self.game_input()
 
-            # self.view.draw(self.load_chunk)
+            self.load_chunk = self.player.check_dungeon(self.load_chunk)
+            self.view.update()
 
-            self.dungeon.draw()
-            self.dungeon.check_player()
-            terminal.layer(0)
+            self.view.draw(self.load_chunk)
 
             terminal.printf(52, 1, f"view x:{self.view.x}, y:{self.view.y}")
             terminal.printf(52, 3, f"player x:{self.player.x}, y:{self.player.y}")
@@ -84,57 +82,47 @@ class Game():
                 self.game_flag = False
 
             if key == terminal.TK_LEFT or key == terminal.TK_H:
-                if self.player.x > self.view.w // 2 - 1 and \
-                        self.player.x < self.chunk_size - self.view.w // 2:
-                    self.view.x -= 1
-
                 self.player.x -= 1
 
-                if self.player.x < 0:
-                    self.update_chunk(-1, 0)
-                    self.player.x = self.chunk_size - 1
+                # chek jump to next chunk
+                if type(self.load_chunk) == Chunk:
+                    if self.player.x < 0:
+                        self.update_chunk(-1, 0)
+                        self.player.x = self.chunk_size - 1
 
                 self.turn_counter += 1
 
             if key == terminal.TK_RIGHT or key == terminal.TK_L:
-                if self.player.x > self.view.w // 2 - 2 and \
-                        self.player.x < self.chunk_size - self.view.w // 2 - 1:
-                    self.view.x += 1
-
                 self.player.x += 1
 
-                if self.player.x > self.chunk_size - 1:
-                    self.update_chunk(1, 0)
-                    self.player.x = 0
+                # chek jump to next chunk
+                if type(self.load_chunk) == Chunk:
+                    if self.player.x > self.chunk_size - 1:
+                        self.update_chunk(1, 0)
+                        self.player.x = 0
 
                 self.turn_counter += 1
 
             if key == terminal.TK_DOWN or key == terminal.TK_J:
-                if self.player.y > self.view.h // 2 - 2 and\
-                        self.player.y < self.chunk_size - self.view.h // 2 - 1:
-                    self.view.y += 1
-
                 self.player.y += 1
 
-                if self.player.y > self.chunk_size - 1:
-                    self.update_chunk(0, 1)
-                    self.player.y = 0
+                # chek jump to next chunk
+                if type(self.load_chunk) == Chunk:
+                    if self.player.y > self.chunk_size - 1:
+                        self.update_chunk(0, 1)
+                        self.player.y = 0
 
                 self.turn_counter += 1
 
-            if key == terminal.TK_UP or key == terminal.TK_K:
-                # chek view zone
-                if self.player.y > self.view.h // 2 - 1 and\
-                        self.player.y < self.chunk_size - self.view.h // 2:
-                    self.view.y -= 1
-                
+            if key == terminal.TK_UP or key == terminal.TK_K:                
                 # move player
                 self.player.y -= 1
 
                 # chek jump to next chunk
-                if self.player.y < 0:
-                    self.update_chunk(0, -1)
-                    self.player.y = self.chunk_size - 1
+                if type(self.load_chunk) == Chunk:
+                    if self.player.y < 0:
+                        self.update_chunk(0, -1)
+                        self.player.y = self.chunk_size - 1
 
                 self.turn_counter += 1
 

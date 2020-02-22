@@ -10,7 +10,8 @@ from ScanWall import scan_wall, choise_wall
 class Floor():
     """Класс одного уровня(Этажа)."""
     def __init__(self, floor, start, end, rooms):
-        self.floor = floor
+        self.area = floor
+        self.size = 128
         self.start = start
         self.end = end
         self.rooms = rooms
@@ -50,12 +51,10 @@ class Rect():
 
 
 class Dungeon():
-    def __init__(self, x, y, player):
-        self.enter_x = x
-        self.enter_y = y
+    def __init__(self):
         self.floors = list()
         self.floor_num = 0
-        self.player = player
+        self.floor_size = 128
         for _ in range(5):
             self.create_level()
 
@@ -74,19 +73,20 @@ class Dungeon():
         self.player.draw(0, 0)
 
     def check_player(self):
-        if self.player.x == self.floors[self.floor_num].start.x1 and self.player.y == self.floors[self.floor_num].start.y1:
-            self.floor_num -= 1
+        start = self.floors[self.floor_num].start
+        end = self.floors[self.floor_num].end
 
+        if self.player.x == start.x1 and self.player.y == start.y1:
+            self.floor_num -= 1
             if self.floor_num == -1:
                 self.exit()
+            self.player.x = end.x1 + 1
+            self.player.y = end.y1
 
-            self.player.x = self.floors[self.floor_num].end.x1 + 1
-            self.player.y = self.floors[self.floor_num].end.y1
-            print("work!", self.floor_num)
-        if self.player.x == self.floors[self.floor_num].end.x1 and self.player.y == self.floors[self.floor_num].end.y1:
+        if self.player.x == end.x1 and self.player.y == end.y1:
             self.floor_num += 1
-            self.player.x = self.floors[self.floor_num].start.x1 + 1
-            self.player.y = self.floors[self.floor_num].start.y1
+            self.player.x = start.x1 + 1
+            self.player.y = start.y1
 
     def exit(self):
         pass
@@ -96,7 +96,7 @@ class Dungeon():
         
         Принимает x, y параметры входа в подземельня.
         """
-        floor = [[Tile("block", "white", True) for _ in range(50)] for _ in range(50)]
+        floor = [[Tile("block", "white", True) for _ in range(self.floor_size)] for _ in range(self.floor_size)]
 
         start = self.create_start(x, y)
         start.dig_me(floor)
@@ -113,7 +113,7 @@ class Dungeon():
 
     def create_main(self, rooms, tonels, floor):
         """Главный Алгоритм который создает уровень(этаж)."""
-        for i in range(30): # Число модов
+        for i in range(100): # Число модов
             failed = False
             while not failed:
                 w = random.randint(3, 6)
@@ -127,18 +127,18 @@ class Dungeon():
 
                     wall_door = choise_wall(direct, door)
                     new_room = self.create_room(direct, floor, wall_door, h, w)
-                    if new_room.x1 <= 0 or new_room.x2 >= 50:
+                    if new_room.x1 <= 0 or new_room.x2 >= self.floor_size:
                         continue
-                    if new_room.y1 <= 0 or new_room.y2 >= 50:
+                    if new_room.y1 <= 0 or new_room.y2 >= self.floor_size:
                         continue
                 else:
                     # Делаем тонель
                     room = random.choice(rooms + tonels)
                     wall = choise_wall(direct, room)
                     new_tonel = self.create_tonel(direct, floor, wall, w+2, h+2)
-                    if new_tonel.x1 <= 0 or new_tonel.x2 >= 50:
+                    if new_tonel.x1 <= 0 or new_tonel.x2 >= self.floor_size:
                         continue
-                    if new_tonel.y1 <= 0 or new_tonel.y2 >= 50:
+                    if new_tonel.y1 <= 0 or new_tonel.y2 >= self.floor_size:
                         continue
 
                 if direct in {1, 3}:
@@ -181,49 +181,47 @@ class Dungeon():
                             failed = True
 
     def create_first_room(self, start, floor):
-        """Генерит начальную комнату.
-        
-        Здесь все страшно с кодом надо пофиксить.
-        """
-        # FIXME PLEASE
+        """Генерит начальную комнату."""
+        def check_outside():
+            """Вспомогательная функция.
+            
+            Проверяет не вышла ли первая комната за пределы карты.
+            """
+            if (self.floor_size - 1 > room.x1 > 1 and
+                self.floor_size - 1 > room.x2 > 1 and
+                self.floor_size - 1 > room.y1 > 1 and
+                self.floor_size - 1 > room.y2 > 1):
+                room.dig_me(floor)
+                return True
+            return False
+
         first_room = False
         while not first_room:
             direct = random.randint(1, 4)
             w = random.randint(3, 6)
             h = random.randint(3, 6)
 
-            if direct == 1:
+            if direct in {1, 3}:
                 mid = int(w/2)
 
-                if scan_wall(direct, [[x for x in range(start.x1 - mid, start.x1 + mid)], start.y1], h + 1, floor):
-                    room = Rect(start.x1 - mid, start.y1 - h, w, h)
-                    if 49 > room.x1 > 1 and 49 > room.x2 > 1 and 49 > room.y1 > 1 and 49 > room.y2 > 1:
-                        room.dig_me(floor)
-                        first_room = True
-            elif direct == 2:
+                if direct == 3:
+                    if scan_wall(direct, [[x for x in range(start.x1 - mid, start.x1 + mid)], start.y1 + 1], h + 1, floor):
+                        room = Rect(start.x1 - mid, start.y1 + 1, w, h)
+                        first_room = check_outside()
+                else:
+                    if scan_wall(direct, [[x for x in range(start.x1 - mid, start.x1 + mid)], start.y1], h + 1, floor):
+                        room = Rect(start.x1 - mid, start.y1 - h, w, h)
+                        first_room = check_outside()
+            if direct in {2, 4}:
                 mid = int(h/2)
-                
-                if scan_wall(direct, [start.x1 + 1, [y for y in range(start.y1 - mid, start.y1 + mid)]], w + 1, floor):
-                    room = Rect(start.x1 + 1, start.y1 - mid, w, h)
-                    if 49 > room.x1 > 1 and 49 > room.x2 > 1 and 49 > room.y1 > 1 and 49 > room.y2 > 1:
-                        room.dig_me(floor)
-                        first_room = True
-            elif direct == 3:
-                mid = int(w/2)
-                
-                if scan_wall(direct, [[x for x in range(start.x1 - mid, start.x1 + mid)], start.y1 + 1], h + 1, floor):
-                    room = Rect(start.x1 - mid, start.y1 + 1, w, h)
-                    if 49 > room.x1 > 1 and 49 > room.x2 > 1 and 49 > room.y1 > 1 and 49 > room.y2 > 1:
-                        room.dig_me(floor)
-                        first_room = True
-            elif direct == 4:
-                mid = int(h/2)
-                
-                if scan_wall(direct, [start.x1, [y for y in range(start.y1 - mid, start.y1 + mid)]], w + 1, floor):
-                    room = Rect(start.x1 - w, start.y1 - mid, w, h)
-                    if 49 > room.x1 > 1 and 49 > room.x2 > 1 and 49 > room.y1 > 1 and 49 > room.y2 > 1:
-                        room.dig_me(floor)
-                        first_room = True
+                if direct == 2:    
+                    if scan_wall(direct, [start.x1 + 1, [y for y in range(start.y1 - mid, start.y1 + mid)]], w + 1, floor):
+                        room = Rect(start.x1 + 1, start.y1 - mid, w, h)
+                        first_room = check_outside()
+                else:    
+                    if scan_wall(direct, [start.x1, [y for y in range(start.y1 - mid, start.y1 + mid)]], w + 1, floor):
+                        room = Rect(start.x1 - w, start.y1 - mid, w, h)
+                        first_room = check_outside()
 
         return room
 
@@ -233,27 +231,25 @@ class Dungeon():
             # UP
             x = random.choice(wall[0])
             y = wall[1]
-            room = Rect(x - w // 2, y - h, w, h)
+            return Rect(x - w // 2, y - h, w, h)
 
         if direct == 2:
             # RIGHT
             x = wall[0]
             y = random.choice(wall[1])
-            room = Rect(x, y - h // 2, w, h)
+            return Rect(x, y - h // 2, w, h)
 
         elif direct == 3:
             # DOWN
             x = random.choice(wall[0])
             y = wall[1]
-            room = Rect(x - w // 2, y, w, h)
+            return Rect(x - w // 2, y, w, h)
 
         elif direct == 4:
             # LEFT
             x = wall[0]
             y = random.choice(wall[1])
-            room = Rect(x - w, y - h // 2, w, h)
-
-        return room
+            return Rect(x - w, y - h // 2, w, h)
 
     def create_tonel(self, direct, floor, wall, w, h):
         """Создает тонель."""
@@ -268,27 +264,25 @@ class Dungeon():
             # UP
             x = random.choice(wall[0])
             y = wall[1]
-            tonel = Rect(x - 1 // 2, y - h, 1, h)
+            return Rect(x - 1 // 2, y - h, 1, h)
 
         if direct == 2:
             # RIGHT
             x = wall[0]
             y = random.choice(wall[1])
-            tonel = Rect(x, y - 1 // 2, w, 1)
+            return Rect(x, y - 1 // 2, w, 1)
 
         elif direct == 3:
             # DOWN
             x = random.choice(wall[0])
             y = wall[1]
-            tonel = Rect(x - 1 // 2, y, 1, h)
+            return Rect(x - 1 // 2, y, 1, h)
 
         elif direct == 4:
             # LEFT
             x = wall[0]
             y = random.choice(wall[1])
-            tonel = Rect(x - w, y - 1 // 2, w, 1)
-
-        return tonel
+            return Rect(x - w, y - 1 // 2, w, 1)
 
     def create_start(self, x=None, y=None):
         """Создает начальную точку от которой будут строится комнаты.
