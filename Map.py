@@ -1,16 +1,14 @@
 from random import randint
 
-from bearlibterminal import terminal
 
-
-class Map():
+class Map:
     def __init__(self):
         self.chunk_num = 5
         self.chunk_size = 128
         self.world = [
-                [Chunk(self.chunk_size) for _ in range(self.chunk_num)]
-                for _ in range(self.chunk_num)
-            ]
+            [Chunk(self.chunk_size) for _ in range(self.chunk_num)]
+            for _ in range(self.chunk_num)
+        ]
 
         self.create_world()
 
@@ -18,7 +16,8 @@ class Map():
         for i in range(self.chunk_num):
             for j in range(self.chunk_num):
                 self.world[i][j].area = [
-                    [Tile("grass", "white", False) for _ in range(self.chunk_size)]
+                    [Tile("Grass", "white", False)
+                     for _ in range(self.chunk_size)]
                     for _ in range(self.chunk_size)
                 ]
 
@@ -26,16 +25,16 @@ class Map():
             for j in range(self.chunk_num):
                 for _ in range(int(0.46875 * self.chunk_size)):
                     self.create_area(
-                        Tile("tree", "green", False),
+                        Tile("Tree", "green", False),
                         2, i, j
-                        )
+                    )
 
                 for _ in range(int(self.chunk_size * 0.0234375)):
                     self.create_area(
-                        Tile("lake", "blue", True),
+                        Tile("Lake", "blue", True),
                         4, i, j
-                        )
-                
+                    )
+
                 self.world[i][j].create_dungeon_enter()
 
     def create_area(self, tile, radius, chunk_x, chunk_y):
@@ -77,8 +76,7 @@ class Map():
                     chunk[i][j] = tile
                     chunk = self.world[chunk_x][chunk_y].area
             except IndexError:
-                print("EROR: landspace generator")
-
+                print("ERROR: landspace generator")
 
     def check_i_j(self, i, j, chunk, chunk_x, chunk_y):
         if i >= self.chunk_size:
@@ -95,12 +93,12 @@ class Map():
 
             chunk = self.world[chunk_x][chunk_y].area
             j = 0
-        
+
         if i < 0:
             chunk_x -= 1
             if chunk_x < 0:
                 chunk_x = self.chunk_num - 1
-    
+
             chunk = self.world[chunk_x][chunk_y].area
             i = self.chunk_size - 1
         if j < 0:
@@ -110,11 +108,11 @@ class Map():
 
             chunk = self.world[chunk_x][chunk_y].area
             j = self.chunk_size - 1
-        
+
         return i, j, chunk
 
 
-class Tile():
+class Tile:
     def __init__(self, tile_type, color, block, objects=[]):
         self.type = tile_type
         self.on_tile = objects
@@ -122,17 +120,18 @@ class Tile():
         self.block = block
 
 
-class Chunk():
+class Chunk:
     def __init__(self, size):
         self.area = list(list())
         self.size = size
-    
+        self.dungeon_x = None
+        self.dungeon_y = None
+        self.dungeon = None
+
     def create_dungeon_enter(self):
         from GenDungeon import Dungeon
-        
+
         self.dungeon_x = 50
         self.dungeon_y = 60
-        self.area[self.dungeon_x][self.dungeon_y] = Tile("dungeon", "red", False)
+        self.area[self.dungeon_x][self.dungeon_y] = Tile("Dungeon", "red", False)
         self.dungeon = Dungeon()
-
-

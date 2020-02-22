@@ -1,11 +1,11 @@
 from bearlibterminal import terminal
 
-from Player import *
-from Map import Map
+from Player import Player
+from Map import Map, Chunk
 from View import View
-from GenDungeon import Dungeon
 
-class Game():
+
+class Game:
     def __init__(self):
         self.turn_counter = -1
         self.game_flag = True
@@ -15,8 +15,8 @@ class Game():
         self.map = Map()
 
         self.chunk_size = self.map.chunk_size
-        self.chunk_x = 3
-        self.chunk_y = 3
+        self.chunk_x = 2
+        self.chunk_y = 2
         self.load_chunk = self.map.world[self.chunk_x][self.chunk_y]
 
         self.main()
@@ -28,13 +28,20 @@ class Game():
         while self.game_flag:
             self.game_input()
 
-            self.load_chunk = self.player.check_dungeon(self.load_chunk)
             self.view.update()
 
-            self.view.draw(self.load_chunk)
+            self.player.check_dungeon(self.load_chunk)
 
-            terminal.printf(52, 1, f"view x:{self.view.x}, y:{self.view.y}")
-            terminal.printf(52, 3, f"player x:{self.player.x}, y:{self.player.y}")
+            if self.player.status == -1:
+                self.view.draw(self.load_chunk)
+            else:
+                self.view.draw(
+                    self.load_chunk.dungeon.floors[self.player.status]
+                )
+                terminal.printf(52, 5, f"floor {self.player.status + 1}")
+
+            terminal.printf(52, 1, f"{self.view.x=}\n{self.view.y=}")
+            terminal.printf(52, 3, f"{self.player.x=}\n{self.player.y=}")
 
             terminal.refresh()
             terminal.clear()
@@ -84,7 +91,13 @@ class Game():
             if key == terminal.TK_LEFT or key == terminal.TK_H:
                 self.player.x -= 1
 
-                # chek jump to next chunk
+                if self.player.block_move(
+                        self.load_chunk if self.player.status == -1 else
+                        self.load_chunk.dungeon.floors[self.player.status]
+                ):
+                    self.player.x += 1
+
+                # check jump to next chunk
                 if type(self.load_chunk) == Chunk:
                     if self.player.x < 0:
                         self.update_chunk(-1, 0)
@@ -95,7 +108,12 @@ class Game():
             if key == terminal.TK_RIGHT or key == terminal.TK_L:
                 self.player.x += 1
 
-                # chek jump to next chunk
+                if self.player.block_move(
+                        self.load_chunk if self.player.status == -1 else
+                        self.load_chunk.dungeon.floors[self.player.status]
+                ):
+                    self.player.x -= 1
+                # check jump to next chunk
                 if type(self.load_chunk) == Chunk:
                     if self.player.x > self.chunk_size - 1:
                         self.update_chunk(1, 0)
@@ -106,7 +124,13 @@ class Game():
             if key == terminal.TK_DOWN or key == terminal.TK_J:
                 self.player.y += 1
 
-                # chek jump to next chunk
+                if self.player.block_move(
+                        self.load_chunk if self.player.status == -1 else
+                        self.load_chunk.dungeon.floors[self.player.status]
+                ):
+                    self.player.y -= 1
+
+                # check jump to next chunk
                 if type(self.load_chunk) == Chunk:
                     if self.player.y > self.chunk_size - 1:
                         self.update_chunk(0, 1)
@@ -114,11 +138,17 @@ class Game():
 
                 self.turn_counter += 1
 
-            if key == terminal.TK_UP or key == terminal.TK_K:                
+            if key == terminal.TK_UP or key == terminal.TK_K:
                 # move player
                 self.player.y -= 1
 
-                # chek jump to next chunk
+                if self.player.block_move(
+                        self.load_chunk if self.player.status == -1 else
+                        self.load_chunk.dungeon.floors[self.player.status]
+                ):
+                    self.player.y += 1
+
+                # check jump to next chunk
                 if type(self.load_chunk) == Chunk:
                     if self.player.y < 0:
                         self.update_chunk(0, -1)

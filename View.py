@@ -1,13 +1,14 @@
+import re
+
 from bearlibterminal import terminal
 
-from Map import Chunk
 
-from GenDungeon import Dungeon
-
-class View():
+class View:
     def __init__(self, player):
         self.w = 50
         self.h = 50
+        self.x = 0
+        self.y = 0
         self.player = player
 
         self.update()
@@ -35,7 +36,11 @@ class View():
             for i in range(self.x, self.w + self.x):
                 cell = chunk.area[i][j]
                 terminal.color(cell.color)
-                terminal.put(x, y, cell.type[0].upper())
+                try:
+                    char = re.search(r'[A-Z]', cell.type).group(0)
+                except AttributeError:
+                    char = cell.type[-1]
+                terminal.put(x, y, char)
                 x += 1
             y += 1
             x = 0

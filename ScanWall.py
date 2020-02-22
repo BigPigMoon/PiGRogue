@@ -41,7 +41,7 @@ def choise_wall(direct, room):
 
 def scan_wall(direct, coords, depth, floor):
     """Сканирует стену в глубину для новой комнаты, тунеля и пр.
-    
+
     args:
         deriect -- направление для сканирования
         coords -- список координат для сканирования
