@@ -23,8 +23,12 @@ class View:
             self.y = 0
 
     def draw(self, chunk):
-        x = 0
-        y = 0
+        """Рисует все что должен видеть игрок.
+
+        слои
+            1 -- карта
+            10 -- игрок
+        """
         terminal.layer(1)
 
         if self.x > chunk.size - self.w:
@@ -32,6 +36,8 @@ class View:
         if self.y > chunk.size - self.h:
             self.y = chunk.size - self.h
 
+        x = 0
+        y = 0
         for j in range(self.y, self.h + self.y):
             for i in range(self.x, self.w + self.x):
                 cell = chunk.area[i][j]
@@ -49,3 +55,6 @@ class View:
         terminal.layer(0)
 
         self.player.draw(self.x, self.y)
+
+        for entity in chunk.entities:
+            entity.draw(self.x, self.y)

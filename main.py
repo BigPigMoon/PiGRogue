@@ -1,7 +1,8 @@
 from bearlibterminal import terminal
 
 from Player import Player
-from Map import Map, Chunk
+from Chunk import Chunk
+from Map import Map
 from View import View
 
 
@@ -11,6 +12,7 @@ class Game:
         self.game_flag = True
 
         self.player = Player(45, 55)
+
         self.view = View(self.player)
         self.map = Map()
 
@@ -26,11 +28,13 @@ class Game:
         terminal.set("GameSettings.ini")
 
         while self.game_flag:
-            self.game_input()
+            if self.game_input():
+                self.turn_counter += 1
 
-            self.view.update()
-
-            self.player.check_dungeon(self.load_chunk)
+                if self.player.status == -1:
+                    self.load_chunk.update()
+                else:
+                    self.load_chunk.dungeon.floors[self.player.status].update()
 
             if self.player.status == -1:
                 self.view.draw(self.load_chunk)
@@ -39,6 +43,10 @@ class Game:
                     self.load_chunk.dungeon.floors[self.player.status]
                 )
                 terminal.printf(52, 5, f"floor {self.player.status + 1}")
+
+            self.player.check_dungeon(self.load_chunk)
+
+            self.view.update()
 
             terminal.printf(52, 1, f"{self.view.x=}\n{self.view.y=}")
             terminal.printf(52, 3, f"{self.player.x=}\n{self.player.y=}")
@@ -82,79 +90,73 @@ class Game:
         if self.turn_counter == -1:
             self.turn_counter += 1
             return
+
         if terminal.has_input():
             key = terminal.read()
 
             if key == terminal.TK_ESCAPE or key == terminal.TK_CLOSE:
                 self.game_flag = False
 
+            # player movement
+            area = self.load_chunk if self.player.status == -1 else\
+                self.load_chunk.dungeon.floors[self.player.status]
             if key == terminal.TK_LEFT or key == terminal.TK_H:
-                self.player.x -= 1
-
-                if self.player.block_move(
-                        self.load_chunk if self.player.status == -1 else
-                        self.load_chunk.dungeon.floors[self.player.status]
-                ):
-                    self.player.x += 1
-
-                # check jump to next chunk
-                if type(self.load_chunk) == Chunk:
-                    if self.player.x < 0:
-                        self.update_chunk(-1, 0)
-                        self.player.x = self.chunk_size - 1
-
-                self.turn_counter += 1
+                self.player.move(-1, 0, area)
+                self.jump_chunk()
+                return True
 
             if key == terminal.TK_RIGHT or key == terminal.TK_L:
-                self.player.x += 1
-
-                if self.player.block_move(
-                        self.load_chunk if self.player.status == -1 else
-                        self.load_chunk.dungeon.floors[self.player.status]
-                ):
-                    self.player.x -= 1
-                # check jump to next chunk
-                if type(self.load_chunk) == Chunk:
-                    if self.player.x > self.chunk_size - 1:
-                        self.update_chunk(1, 0)
-                        self.player.x = 0
-
-                self.turn_counter += 1
+                self.player.move(1, 0, area)
+                self.jump_chunk()
+                return True
 
             if key == terminal.TK_DOWN or key == terminal.TK_J:
-                self.player.y += 1
-
-                if self.player.block_move(
-                        self.load_chunk if self.player.status == -1 else
-                        self.load_chunk.dungeon.floors[self.player.status]
-                ):
-                    self.player.y -= 1
-
-                # check jump to next chunk
-                if type(self.load_chunk) == Chunk:
-                    if self.player.y > self.chunk_size - 1:
-                        self.update_chunk(0, 1)
-                        self.player.y = 0
-
-                self.turn_counter += 1
+                self.player.move(0, 1, area)
+                self.jump_chunk()
+                return True
 
             if key == terminal.TK_UP or key == terminal.TK_K:
-                # move player
-                self.player.y -= 1
+                self.player.move(0, -1, area)
+                self.jump_chunk()
+                return True
 
-                if self.player.block_move(
-                        self.load_chunk if self.player.status == -1 else
-                        self.load_chunk.dungeon.floors[self.player.status]
-                ):
-                    self.player.y += 1
+            if key == terminal.TK_Y:    # move up-left
+                self.player.move(-1, -1, area)
+                self.jump_chunk()
+                return True
 
-                # check jump to next chunk
-                if type(self.load_chunk) == Chunk:
-                    if self.player.y < 0:
-                        self.update_chunk(0, -1)
-                        self.player.y = self.chunk_size - 1
+            if key == terminal.TK_U:    # move up-right
+                self.player.move(1, -1, area)
+                self.jump_chunk()
+                return True
 
-                self.turn_counter += 1
+            if key == terminal.TK_B:
+                self.player.move(-1, 1, area)
+                self.jump_chunk()
+                return True
+
+            if key == terminal.TK_N:
+                self.player.move(1, 1, area)
+                self.jump_chunk()
+                return True
+
+    def jump_chunk(self):
+        if type(self.load_chunk) == Chunk:
+            if self.player.y < 0:
+                self.update_chunk(0, -1)
+                self.player.y = self.chunk_size - 1
+
+            if self.player.y > self.chunk_size - 1:
+                self.update_chunk(0, 1)
+                self.player.y = 0
+
+            if self.player.x > self.chunk_size - 1:
+                self.update_chunk(1, 0)
+                self.player.x = 0
+
+            if self.player.x < 0:
+                self.update_chunk(-1, 0)
+                self.player.x = self.chunk_size - 1
 
 
 if __name__ == "__main__":

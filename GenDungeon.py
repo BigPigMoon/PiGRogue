@@ -1,70 +1,23 @@
-# Алгоритм генерации Этажа.
-
+"""Алгоритм генерации Этажа."""
 import random
 
-from bearlibterminal import terminal
-
-from Map import Tile
+from Tile import Tile
+from Floor import Floor
 from ScanWall import scan_wall, choise_wall
-
-
-class Floor:
-    """Класс одного уровня(Этажа)."""
-    def __init__(self, floor, start, end, rooms):
-        self.area = floor
-        self.size = 128
-        self.start = start
-        self.end = end
-        self.rooms = rooms
-
-
-class Rect:
-    def __init__(self, x, y, w, h):
-        self.x1 = x
-        self.y1 = y
-        self.x2 = w + x
-        self.y2 = h + y
-
-    def dig_me(self, floor):
-        """Выкапывает прямоугольник в карте."""
-        for x in range(min(self.x1, self.x2), max(self.x1, self.x2)):
-            for y in range(min(self.y1, self.y2), max(self.y1, self.y2)):
-                floor[x][y].block = False
-                floor[x][y].color = "black"
-                floor[x][y].type = "void "
-
-    def intersect(self, other):
-        """Проверка исключений."""
-        return (self.x1 <= other.x2 and self.x2 >= other.x1 and
-                self.y1 <= other.y2 and self.y2 >= other.y1)
-
-    def get_center(self):
-        """Определение центров прямоугольника(комнаты)."""
-        center_x = (self.x1 + self.x2) // 2
-        center_y = (self.y1 + self.y2) // 2
-        return center_x, center_y
-
-    def get_random(self):
-        """Выбирает случайную точку в комнате."""
-        random_x = random.randint(self.x1 + 1, self.x2 - 1)
-        random_y = random.randint(self.y1 + 1, self.y2 - 1)
-        return random_x, random_y
+from Rect import Rect
 
 
 class Dungeon:
-    def __init__(self):
+    def __init__(self, size):
         self.floors = list()
         self.floor_num = 0
-        self.floor_size = 128
+        self.floor_size = size
         self.max_floor_num = random.randint(3, 8)
         for i in range(self.max_floor_num):
             self.create_level(i)
 
     def create_level(self, num_iter):
-        """Сборная солянка из функций.
-        
-        Принимает x, y параметры входа в подземельня.
-        """
+        """Сборная солянка из функций."""
         floor = [
             [Tile("wall#", "white", True) for _ in range(self.floor_size)]
             for _ in range(self.floor_size)
@@ -88,11 +41,12 @@ class Dungeon:
         floor[end.x1][end.y1] = Tile("eXit", "blue", False)
         floor[start.x1][start.y1] = Tile("Enter", "blue", False)
 
-        self.floors.append(Floor(floor, start, end, rooms))
+        self.floors.append(Floor(floor, start, end, rooms, self.floor_size))
+        self.floors[-1].spawn_entities()
 
     def create_main(self, rooms, tonels, floor):
         """Главный Алгоритм который создает уровень(этаж)."""
-        for i in range(100):  # Число модов
+        for i in range(self.floor_size):  # Число модов
             failed = False
             while not failed:
                 w = random.randint(3, 6)
@@ -301,25 +255,25 @@ class Dungeon:
             y = random.choice(wall[1])
             return Rect(x - w, y - 1 // 2, w, 1)
 
-    @staticmethod
-    def create_start(x=None, y=None):
+    def create_start(self):
         """Создает начальную точку от которой будут строится комнаты.
 
         Если x и y это None координаты будут рандомными иначе заданные.
 
         Возвращает Rect
         """
-        if x is None:
-            x = random.randint(10, 40)
-        if y is None:
-            y = random.randint(10, 40)
+        x = random.randint(10, self.floor_size - 10)
+        y = random.randint(10, self.floor_size - 10)
 
         start = Rect(x, y, 1, 1)
 
         return start
 
     def create_end(self, rooms, floor):
-        """Создает конец в рандомной комнате."""
+        """Создает конец в рандомной комнате.
+
+        Возвращает Rect.
+        """
         failed = False
         while not failed:
             end_room = random.choice(rooms)

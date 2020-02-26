@@ -1,0 +1,17 @@
+/* Пока что не работает
+ *
+ * ЗАГОТОВКА
+**/
+
+{
+  "left" : "TK_H",
+  "right" : "TK_L",
+  "up" : "TK_K",
+  "down" : "TK_J",
+  "up_left" : "TK_Y",
+  "up_right" : "TK_U",
+  "down_left" : "TK_B",
+  "down_right" : "TK_N",
+  "map" : "TK_M",
+  "inventory" : "TK_I"
+}

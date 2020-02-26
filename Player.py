@@ -20,7 +20,18 @@ class Player:
         terminal.layer(0)
 
     def block_move(self, area):
-        return area.area[self.x][self.y].block
+        try:
+            return area.area[self.x][self.y].block
+        except IndexError:
+            return False
+
+    def move(self, dx, dy, area):
+        self.x += dx
+        self.y += dy
+
+        if self.block_move(area):
+            self.x -= dx
+            self.y -= dy
 
     def check_dungeon(self, chunk):
         dungeon = chunk.dungeon

@@ -1,5 +1,8 @@
 from random import randint
 
+from Tile import Tile
+from Chunk import Chunk
+
 
 class Map:
     def __init__(self):
@@ -34,8 +37,10 @@ class Map:
                         Tile("Lake", "blue", True),
                         4, i, j
                     )
+                if randint(0, 1):
+                    self.world[i][j].create_dungeon_enter()
 
-                self.world[i][j].create_dungeon_enter()
+                # self.world[i][j].spawn_entities()
 
     def create_area(self, tile, radius, chunk_x, chunk_y):
         i = randint(0, self.chunk_size)
@@ -56,25 +61,21 @@ class Map:
                     i -= 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
                     chunk[i][j] = tile
-                    chunk = self.world[chunk_x][chunk_y].area
 
                 if s == 1:
                     i += 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
                     chunk[i][j] = tile
-                    chunk = self.world[chunk_x][chunk_y].area
 
                 if w == 1:
                     j -= 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
                     chunk[i][j] = tile
-                    chunk = self.world[chunk_x][chunk_y].area
 
                 if e == 1:
                     j += 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
                     chunk[i][j] = tile
-                    chunk = self.world[chunk_x][chunk_y].area
             except IndexError:
                 print("ERROR: landspace generator")
 
@@ -86,6 +87,7 @@ class Map:
                 chunk_x = 0
             chunk = self.world[chunk_x][chunk_y].area
             i = 0
+
         if j >= self.chunk_size:
             chunk_y += 1
             if chunk_y + 1 > self.chunk_num:
@@ -101,37 +103,13 @@ class Map:
 
             chunk = self.world[chunk_x][chunk_y].area
             i = self.chunk_size - 1
+
         if j < 0:
             chunk_y -= 1
             if chunk_y < 0:
-                chukn_y = self.chunk_num - 1
+                chunk_y = self.chunk_num - 1
 
             chunk = self.world[chunk_x][chunk_y].area
             j = self.chunk_size - 1
 
         return i, j, chunk
-
-
-class Tile:
-    def __init__(self, tile_type, color, block, objects=[]):
-        self.type = tile_type
-        self.on_tile = objects
-        self.color = color
-        self.block = block
-
-
-class Chunk:
-    def __init__(self, size):
-        self.area = list(list())
-        self.size = size
-        self.dungeon_x = None
-        self.dungeon_y = None
-        self.dungeon = None
-
-    def create_dungeon_enter(self):
-        from GenDungeon import Dungeon
-
-        self.dungeon_x = 50
-        self.dungeon_y = 60
-        self.area[self.dungeon_x][self.dungeon_y] = Tile("Dungeon", "red", False)
-        self.dungeon = Dungeon()
