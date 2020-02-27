@@ -7,7 +7,7 @@ from Chunk import Chunk
 class Map:
     def __init__(self):
         self.chunk_num = 5
-        self.chunk_size = 128
+        self.chunk_size = 64
         self.world = [
             [Chunk(self.chunk_size) for _ in range(self.chunk_num)]
             for _ in range(self.chunk_num)
@@ -40,7 +40,7 @@ class Map:
                 if randint(0, 1):
                     self.world[i][j].create_dungeon_enter()
 
-                # self.world[i][j].spawn_entities()
+                self.world[i][j].spawn_entities()
 
     def create_area(self, tile, radius, chunk_x, chunk_y):
         i = randint(0, self.chunk_size)

@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, choice
 
 from Monsters import *
 from GenDungeon import Dungeon
@@ -16,19 +16,22 @@ class Chunk:
         self.dungeon = None
 
     def create_dungeon_enter(self):
-        # TODO пофиксить импорт класса из модуля GenDungeon
-
         self.dungeon_x = randint(2, self.size - 2)
         self.dungeon_y = randint(2, self.size - 2)
         self.area[self.dungeon_x][self.dungeon_y] = Tile(
-            "Dungeon", "red", False
+            "Подземелье", "red", False
         )
         self.dungeon = Dungeon(self.size)
 
     def spawn_entities(self):
-        for _ in range(randint(20, 40)):
-            x, y = randint(2, self.size), randint(2, self.size)
-            self.entities.append(Animal(self.area, "Bear", x, y))
+        m_pack = get_monster_pack()
+        for _ in range(randint(1, 2)):
+            x, y = randint(2, self.size - 2), randint(2, self.size - 2)
+            self.entities.append(choice(m_pack))
+            self.entities[-1].area = self.area
+            self.entities[-1].level = randint(1, 10)
+            self.entities[-1].x, self.entities[-1].y = x, y
+            self.entities[-1].update()
 
     def update(self):
         for entity in self.entities:

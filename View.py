@@ -43,7 +43,7 @@ class View:
                 cell = chunk.area[i][j]
                 terminal.color(cell.color)
                 try:
-                    char = re.search(r'[A-Z]', cell.type).group(0)
+                    char = re.search(r'[А-ЯA-Z]', cell.type).group(0)
                 except AttributeError:
                     char = cell.type[-1]
                 terminal.put(x, y, char)
@@ -54,7 +54,7 @@ class View:
         terminal.color("white")
         terminal.layer(0)
 
-        self.player.draw(self.x, self.y)
-
         for entity in chunk.entities:
             entity.draw(self.x, self.y)
+
+        self.player.draw(self.x, self.y)

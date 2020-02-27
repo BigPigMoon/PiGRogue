@@ -48,13 +48,78 @@ class Game:
 
             self.view.update()
 
-            terminal.printf(52, 1, f"{self.view.x=}\n{self.view.y=}")
-            terminal.printf(52, 3, f"{self.player.x=}\n{self.player.y=}")
-
             terminal.refresh()
             terminal.clear()
 
         terminal.close()
+
+    def game_input(self):
+        if self.turn_counter == -1:
+            self.turn_counter += 1
+            return
+
+        if terminal.has_input():
+            key = terminal.read()
+
+            if key == terminal.TK_ESCAPE or key == terminal.TK_CLOSE:
+                self.game_flag = False
+
+            # player movement
+            area = self.load_chunk if self.player.status == -1 else\
+                self.load_chunk.dungeon.floors[self.player.status]
+
+            if (key == terminal.TK_LEFT or
+                    key == terminal.TK_H or
+                    key == terminal.TK_KP_4):
+                self.player.move(-1, 0, area)
+                self.jump_chunk()
+                return True
+
+            if (key == terminal.TK_RIGHT or
+                    key == terminal.TK_L or
+                    key == terminal.TK_KP_6):
+                self.player.move(1, 0, area)
+                self.jump_chunk()
+                return True
+
+            if (key == terminal.TK_DOWN or
+                    key == terminal.TK_J or
+                    key == terminal.TK_KP_2):
+                self.player.move(0, 1, area)
+                self.jump_chunk()
+                return True
+
+            if (key == terminal.TK_UP or
+                    key == terminal.TK_K or
+                    key == terminal.TK_KP_8):
+                self.player.move(0, -1, area)
+                self.jump_chunk()
+                return True
+
+            if key == terminal.TK_Y or key == terminal.TK_KP_7:
+                self.player.move(-1, -1, area)
+                self.jump_chunk()
+                return True
+
+            if key == terminal.TK_U or key == terminal.TK_KP_9:
+                self.player.move(1, -1, area)
+                self.jump_chunk()
+                return True
+
+            if key == terminal.TK_B or key == terminal.TK_KP_1:
+                self.player.move(-1, 1, area)
+                self.jump_chunk()
+                return True
+
+            if key == terminal.TK_N or key == terminal.TK_KP_3:
+                self.player.move(1, 1, area)
+                self.jump_chunk()
+                return True
+
+            if key == terminal.TK_SPACE or key == terminal.TK_KP_5:
+                return True
+
+            return False
 
     def update_chunk(self, chunk_x, chunk_y):
         num_chunk = self.map.chunk_num
@@ -85,60 +150,6 @@ class Game:
             self.chunk_y = 0
 
         self.load_chunk = self.map.world[self.chunk_x][self.chunk_y]
-
-    def game_input(self):
-        if self.turn_counter == -1:
-            self.turn_counter += 1
-            return
-
-        if terminal.has_input():
-            key = terminal.read()
-
-            if key == terminal.TK_ESCAPE or key == terminal.TK_CLOSE:
-                self.game_flag = False
-
-            # player movement
-            area = self.load_chunk if self.player.status == -1 else\
-                self.load_chunk.dungeon.floors[self.player.status]
-            if key == terminal.TK_LEFT or key == terminal.TK_H:
-                self.player.move(-1, 0, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_RIGHT or key == terminal.TK_L:
-                self.player.move(1, 0, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_DOWN or key == terminal.TK_J:
-                self.player.move(0, 1, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_UP or key == terminal.TK_K:
-                self.player.move(0, -1, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_Y:    # move up-left
-                self.player.move(-1, -1, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_U:    # move up-right
-                self.player.move(1, -1, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_B:
-                self.player.move(-1, 1, area)
-                self.jump_chunk()
-                return True
-
-            if key == terminal.TK_N:
-                self.player.move(1, 1, area)
-                self.jump_chunk()
-                return True
 
     def jump_chunk(self):
         if type(self.load_chunk) == Chunk:

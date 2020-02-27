@@ -14,13 +14,10 @@ class Player:
         terminal.color("white")
         terminal.layer(0)
 
-    def clear(self):
-        terminal.layer(10)
-        terminal.put(self.x, self.y, ' ')
-        terminal.layer(0)
-
     def block_move(self, area):
         try:
+            if self.x < 0 or self.y < 0:
+                return False
             return area.area[self.x][self.y].block
         except IndexError:
             return False

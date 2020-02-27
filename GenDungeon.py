@@ -29,7 +29,7 @@ class Dungeon:
 
         rooms = [first_room]
         tonels = []
-        self.create_main(rooms, tonels, floor)
+        self.create_main(rooms, tonels, floor, num_iter)
         rooms.remove(first_room)
 
         if num_iter == self.max_floor_num - 1:
@@ -44,9 +44,9 @@ class Dungeon:
         self.floors.append(Floor(floor, start, end, rooms, self.floor_size))
         self.floors[-1].spawn_entities()
 
-    def create_main(self, rooms, tonels, floor):
+    def create_main(self, rooms, tonels, floor, i):
         """Главный Алгоритм который создает уровень(этаж)."""
-        for i in range(self.floor_size):  # Число модов
+        for i in range(self.floor_size // 6 * (i + 1)):  # Число модов
             failed = False
             while not failed:
                 w = random.randint(3, 6)
