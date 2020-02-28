@@ -23,22 +23,30 @@ class Entity:
         except AttributeError:
             self.char = name[-1]
 
+    def sit_down_tile(self):
+        self.area[self.x][self.y].entity_on_me = self
+
+    def stand_up_tile(self):
+        self.area[self.x][self.y].entity_on_me = None
+
     def update(self):
         self.hp *= self.level
         self.damage *= self.level
         self.damage_resistance *= self.level
         self.xp = self.hp * self.damage * self.level * 0.1
+        self.sit_down_tile()
 
     def draw(self, x, y):
-        terminal.layer(1)
-        terminal.put(self.x - x, self.y - y, ' ')
+        if self.x - x < 50 and self.y - y < 50:
+            terminal.layer(1)
+            terminal.put(self.x - x, self.y - y, ' ')
 
-        terminal.layer(self.layer)
-        terminal.color(self.color)
-        terminal.put(self.x - x, self.y - y, self.char)
+            terminal.layer(self.layer)
+            terminal.color(self.color)
+            terminal.put(self.x - x, self.y - y, self.char)
 
-        terminal.color("white")
-        terminal.layer(0)
+            terminal.color("white")
+            terminal.layer(0)
 
     def block_move(self):
         try:
@@ -47,8 +55,7 @@ class Entity:
             return False
 
     def move(self, dx, dy):
-        # dx = 0 if dy != 0 else dx
-        # dy = 0 if dx != 0 else dy
+        self.stand_up_tile()
 
         self.x += dx
         self.y += dy
@@ -56,3 +63,13 @@ class Entity:
         if self.block_move():
             self.x -= dx
             self.y -= dy
+
+        elif self.x < 0 or self.y < 0 or self.x >= len(self.area) or self.y >= len(self.area):
+            self.x -= dx
+            self.y -= dy
+
+        elif self.area[self.x][self.y].entity_on_me:
+            self.x -= dx
+            self.y -= dy
+
+        self.sit_down_tile()

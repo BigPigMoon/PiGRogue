@@ -18,9 +18,10 @@ class Floor:
     def spawn_entities(self):
         m_pack = get_monster_pack()
         for _ in range(randint(len(self.rooms) // 4, len(self.rooms) // 2)):
-            x, y = randint(2, self.size - 2), randint(2, self.size - 2)
-            while self.area[x][y].block:
+            while True:
                 x, y = randint(2, self.size - 2), randint(2, self.size - 2)
+                if not self.area[x][y].block and not self.area[x][y].entity_on_me:
+                    break
 
             self.entities.append(copy(choice(m_pack)))
             self.entities[-1].area = self.area

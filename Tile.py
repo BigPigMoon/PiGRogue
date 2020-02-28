@@ -4,3 +4,4 @@ class Tile:
         self.on_tile = objects
         self.color = color
         self.block = block
+        self.entity_on_me = None

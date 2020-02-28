@@ -6,6 +6,13 @@ class Player:
         self.x = x
         self.y = y
         self.status = -1
+        self.area = None
+
+        self.name = "BigPigMoon"
+        self.hp = 100
+        self.damage = 1
+        self.level = 1
+        self.damage_resistance = 0.5
 
     def draw(self, x, y):
         terminal.layer(10)
@@ -14,21 +21,31 @@ class Player:
         terminal.color("white")
         terminal.layer(0)
 
-    def block_move(self, area):
+    def sit_down_tile(self):
+        self.area[self.x][self.y].entity_on_me = self
+
+    def stand_up_tile(self):
+        self.area[self.x][self.y].entity_on_me = None
+
+    def block_move(self):
         try:
             if self.x < 0 or self.y < 0:
                 return False
-            return area.area[self.x][self.y].block
+            return self.area[self.x][self.y].block
         except IndexError:
             return False
 
-    def move(self, dx, dy, area):
+    def move(self, dx, dy):
+        self.stand_up_tile()
+
         self.x += dx
         self.y += dy
 
-        if self.block_move(area):
+        if self.block_move():
             self.x -= dx
             self.y -= dy
+
+        self.sit_down_tile()
 
     def check_dungeon(self, chunk):
         dungeon = chunk.dungeon
@@ -63,6 +80,8 @@ class Player:
                     self.droper(dungeon.floors[self.status].area)
 
     def droper(self, area):
+        self.stand_up_tile()
+
         if area[self.x][self.y + 1].block is False:
             self.y += 1
         elif area[self.x][self.y - 1].block is False:
@@ -71,3 +90,5 @@ class Player:
             self.x += 1
         elif area[self.x - 1][self.y].block is False:
             self.x -= 1
+
+        self.sit_down_tile()

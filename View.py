@@ -10,12 +10,13 @@ class View:
         self.x = 0
         self.y = 0
         self.player = player
+        self.target = player
 
         self.update()
 
     def update(self):
-        self.x = self.player.x - self.w // 2 + 1
-        self.y = self.player.y - self.h // 2 + 1
+        self.x = self.target.x - self.w // 2 + 1
+        self.y = self.target.y - self.h // 2 + 1
 
         if self.x < 0:
             self.x = 0

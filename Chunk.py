@@ -1,4 +1,5 @@
 from random import randint, choice
+from copy import copy
 
 from Monsters import *
 from GenDungeon import Dungeon
@@ -25,9 +26,13 @@ class Chunk:
 
     def spawn_entities(self):
         m_pack = get_monster_pack()
-        for _ in range(randint(1, 2)):
-            x, y = randint(2, self.size - 2), randint(2, self.size - 2)
-            self.entities.append(choice(m_pack))
+        for _ in range(randint(10, 20)):
+            while True:
+                x, y = randint(2, self.size - 2), randint(2, self.size - 2)
+                if not self.area[x][y].block and not self.area[x][y].entity_on_me:
+                    break
+
+            self.entities.append(copy(choice(m_pack)))
             self.entities[-1].area = self.area
             self.entities[-1].level = randint(1, 10)
             self.entities[-1].x, self.entities[-1].y = x, y

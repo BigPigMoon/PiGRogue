@@ -4,22 +4,27 @@ from Player import Player
 from Chunk import Chunk
 from Map import Map
 from View import View
+from ViewMode import ViewMode
 
 
 class Game:
     def __init__(self):
         self.turn_counter = -1
         self.game_flag = True
+        self.view_mode_bool = False
 
         self.player = Player(45, 55)
 
         self.view = View(self.player)
+        self.view_mode = ViewMode()
         self.map = Map()
 
         self.chunk_size = self.map.chunk_size
         self.chunk_x = 2
         self.chunk_y = 2
         self.load_chunk = self.map.world[self.chunk_x][self.chunk_y]
+
+        self.player.area = self.load_chunk.area
 
         self.main()
 
@@ -35,6 +40,7 @@ class Game:
                     self.load_chunk.update()
                 else:
                     self.load_chunk.dungeon.floors[self.player.status].update()
+                    self.player.area = self.load_chunk.dungeon.floors[self.player.status].area
 
             if self.player.status == -1:
                 self.view.draw(self.load_chunk)
@@ -43,6 +49,10 @@ class Game:
                     self.load_chunk.dungeon.floors[self.player.status]
                 )
                 terminal.printf(52, 5, f"floor {self.player.status + 1}")
+
+            if self.view_mode_bool:
+                self.view_mode.draw(self.view.x, self.view.y)
+                self.view_mode.print_information()
 
             self.player.check_dungeon(self.load_chunk)
 
@@ -65,59 +75,83 @@ class Game:
                 self.game_flag = False
 
             # player movement
-            area = self.load_chunk if self.player.status == -1 else\
-                self.load_chunk.dungeon.floors[self.player.status]
-
             if (key == terminal.TK_LEFT or
                     key == terminal.TK_H or
                     key == terminal.TK_KP_4):
-                self.player.move(-1, 0, area)
-                self.jump_chunk()
-                return True
+                if not self.view_mode_bool:
+                    self.player.move(-1, 0)
+                    self.jump_chunk()
+                    return True
+                else:
+                    self.view_mode.move(-1, 0)
 
             if (key == terminal.TK_RIGHT or
                     key == terminal.TK_L or
                     key == terminal.TK_KP_6):
-                self.player.move(1, 0, area)
-                self.jump_chunk()
-                return True
+                if not self.view_mode_bool:
+                    self.player.move(1, 0)
+                    self.jump_chunk()
+                    return True
+                else:
+                    self.view_mode.move(1, 0)
 
             if (key == terminal.TK_DOWN or
                     key == terminal.TK_J or
                     key == terminal.TK_KP_2):
-                self.player.move(0, 1, area)
-                self.jump_chunk()
-                return True
+                if not self.view_mode_bool:
+                    self.player.move(0, 1)
+                    self.jump_chunk()
+                    return True
+                else:
+                    self.view_mode.move(0, 1)
 
             if (key == terminal.TK_UP or
                     key == terminal.TK_K or
                     key == terminal.TK_KP_8):
-                self.player.move(0, -1, area)
-                self.jump_chunk()
-                return True
+                if not self.view_mode_bool:
+                    self.player.move(0, -1)
+                    self.jump_chunk()
+                    return True
+                else:
+                    self.view_mode.move(0, -1)
 
             if key == terminal.TK_Y or key == terminal.TK_KP_7:
-                self.player.move(-1, -1, area)
+                self.player.move(-1, -1)
                 self.jump_chunk()
                 return True
 
             if key == terminal.TK_U or key == terminal.TK_KP_9:
-                self.player.move(1, -1, area)
+                self.player.move(1, -1)
                 self.jump_chunk()
                 return True
 
             if key == terminal.TK_B or key == terminal.TK_KP_1:
-                self.player.move(-1, 1, area)
+                self.player.move(-1, 1)
                 self.jump_chunk()
                 return True
 
             if key == terminal.TK_N or key == terminal.TK_KP_3:
-                self.player.move(1, 1, area)
+                self.player.move(1, 1)
                 self.jump_chunk()
                 return True
 
             if key == terminal.TK_SPACE or key == terminal.TK_KP_5:
                 return True
+
+            if key == terminal.TK_X:
+                if not self.view_mode_bool:
+                    self.view_mode.set_position(
+                        self.player.x, self.player.y, self.load_chunk
+                    )
+
+                    if self.player.status >= 0:
+                        self.view_mode.chunk = self.load_chunk.dungeon.floors[self.player.status]
+
+                    self.view.target = self.view_mode
+                    self.view_mode_bool = True
+                else:
+                    self.view.target = self.player
+                    self.view_mode_bool = False
 
             return False
 
@@ -168,6 +202,8 @@ class Game:
             if self.player.x < 0:
                 self.update_chunk(-1, 0)
                 self.player.x = self.chunk_size - 1
+
+            self.player.area = self.load_chunk.area
 
 
 if __name__ == "__main__":

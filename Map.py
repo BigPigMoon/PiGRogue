@@ -1,4 +1,5 @@
 from random import randint
+from copy import copy
 
 from Tile import Tile
 from Chunk import Chunk
@@ -60,22 +61,22 @@ class Map:
                 if n == 1:
                     i -= 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-                    chunk[i][j] = tile
+                    chunk[i][j] = copy(tile)
 
                 if s == 1:
                     i += 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-                    chunk[i][j] = tile
+                    chunk[i][j] = copy(tile)
 
                 if w == 1:
                     j -= 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-                    chunk[i][j] = tile
+                    chunk[i][j] = copy(tile)
 
                 if e == 1:
                     j += 1
                     i, j, chunk = self.check_i_j(i, j, chunk, chunk_x, chunk_y)
-                    chunk[i][j] = tile
+                    chunk[i][j] = copy(tile)
             except IndexError:
                 print("ERROR: landspace generator")
 
