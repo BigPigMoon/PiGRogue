@@ -13,7 +13,7 @@ class Game:
         self.turn_counter = -1
         self.game_flag = True
 
-        self.player = Player(45, 55)
+        self.player = Player(15, 55)
 
         self.view = View(self.player)
         self.attack_mode = AttackMode()
@@ -76,93 +76,89 @@ class Game:
             key = terminal.read()
 
             if key == terminal.TK_ESCAPE or key == terminal.TK_CLOSE:
-                if self.view_mode.mode_bool:
+                if self.view_mode.mode_bool or self.attack_mode.mode_bool:
                     self.view_mode.mode_bool = False
-                elif self.attack_mode.mode_bool:
                     self.attack_mode.mode_bool = False
+                    self.view.target = self.player
                 else:
                     self.game_flag = False
 
             # player movement
+            if self.view_mode.mode_bool:
+                moved_body = self.view_mode
+            elif self.attack_mode.mode_bool:
+                moved_body = self.attack_mode
+            else:
+                moved_body = self.player
+
             if (key == terminal.TK_LEFT or
                     key == terminal.TK_H or
                     key == terminal.TK_KP_4):
-                if self.view_mode.mode_bool:
-                    self.view_mode.move(-1, 0)
-                elif self.attack_mode.mode_bool:
-                    self.attack_mode.move(-1, 0)
-                else:
-                    self.player.move(-1, 0)
-                    self.jump_chunk()
+                moved_body.move(-1, 0)
+                self.jump_chunk()
+                if type(moved_body) == Player:
                     return True
 
             if (key == terminal.TK_RIGHT or
                     key == terminal.TK_L or
                     key == terminal.TK_KP_6):
-                if self.view_mode.mode_bool:
-                    self.view_mode.move(1, 0)
-                elif self.attack_mode.mode_bool:
-                    self.attack_mode.move(1, 0)
-                else:
-                    self.player.move(1, 0)
-                    self.jump_chunk()
+                moved_body.move(1, 0)
+                self.jump_chunk()
+                if type(moved_body) == Player:
                     return True
 
             if (key == terminal.TK_DOWN or
                     key == terminal.TK_J or
                     key == terminal.TK_KP_2):
-                if self.view_mode.mode_bool:
-                    self.view_mode.move(0, 1)
-                elif self.attack_mode.mode_bool:
-                    self.attack_mode.move(0, 1)
-                else:
-                    self.player.move(0, 1)
-                    self.jump_chunk()
+                moved_body.move(0, 1)
+                self.jump_chunk()
+                if type(moved_body) == Player:
                     return True
 
             if (key == terminal.TK_UP or
                     key == terminal.TK_K or
                     key == terminal.TK_KP_8):
-                if self.view_mode.mode_bool:
-                    self.view_mode.move(0, -1)
-                elif self.attack_mode.mode_bool:
-                    self.attack_mode.move(0, -1)
-                else:
-                    self.player.move(0, -1)
-                    self.jump_chunk()
+                moved_body.move(0, -1)
+                self.jump_chunk()
+                if type(moved_body) == Player:
                     return True
 
             if key == terminal.TK_Y or key == terminal.TK_KP_7:
-                self.player.move(-1, -1)
+                moved_body.move(-1, -1)
                 self.jump_chunk()
-                return True
+                if type(moved_body) == Player:
+                    return True
 
             if key == terminal.TK_U or key == terminal.TK_KP_9:
-                self.player.move(1, -1)
+                moved_body.move(1, -1)
                 self.jump_chunk()
-                return True
+                if type(moved_body) == Player:
+                    return True
 
             if key == terminal.TK_B or key == terminal.TK_KP_1:
-                self.player.move(-1, 1)
+                moved_body.move(-1, 1)
                 self.jump_chunk()
-                return True
+                if type(moved_body) == Player:
+                    return True
 
             if key == terminal.TK_N or key == terminal.TK_KP_3:
-                self.player.move(1, 1)
+                moved_body.move(1, 1)
                 self.jump_chunk()
-                return True
+                if not type(moved_body) == Player:
+                    return True
 
             if key == terminal.TK_SPACE or key == terminal.TK_KP_5:
-                return True
+                if not type(moved_body) == Player:
+                    return True
 
             if key == terminal.TK_X:
                 if not self.view_mode.mode_bool:
-                    self.view_mode.set_position(
-                        self.player.x, self.player.y, self.load_chunk
-                    )
-
+                    self.view_mode.set_position(self.player.x,
+                                                self.player.y,
+                                                self.load_chunk)
                     if self.player.status >= 0:
-                        self.view_mode.chunk = self.load_chunk.dungeon.floors[self.player.status]
+                        self.view_mode.chunk = self.load_chunk.dungeon.floors[
+                            self.player.status]
 
                     self.view.target = self.view_mode
                     self.view_mode.mode_bool = True
@@ -178,13 +174,20 @@ class Game:
                                                   self.load_chunk)
 
                     if self.player.status >= 0:
-                        self.attack_mode.chunk = self.load_chunk.dungeon.floors[self.player.status]
+                        self.attack_mode.chunk = self.load_chunk.dungeon.floors
+                        [self.player.status]
                     self.view_mode.mode_bool = False
                     self.attack_mode.mode_bool = True
                     self.view.target = self.attack_mode
                 else:
                     self.view.target = self.player
                     self.attack_mode.mode_bool = False
+
+            if self.attack_mode.mode_bool and key == terminal.TK_ENTER:
+                self.attack_mode.attack()
+                self.view.target = self.player
+                self.attack_mode.mode_bool = False
+                return True
 
             return False
 
