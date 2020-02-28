@@ -4,7 +4,7 @@ from bearlibterminal import terminal
 
 
 class Entity:
-    def __init__(self, name, color, hp, damage, dam_resist, x=0, y=0):
+    def __init__(self, name, color, hp, dam_resist, x=0, y=0):
         self.x = x
         self.y = y
         self.area = None
@@ -13,7 +13,7 @@ class Entity:
         self.level = None
         self.hp = hp
         self.xp = 0
-        self.damage = damage
+        self.damage = 0
         self.damage_resistance = dam_resist
         # for drawing
         self.color = terminal.color_from_argb(*[int(a) for a in color.split(' ')])
@@ -30,9 +30,8 @@ class Entity:
         self.area[self.x][self.y].entity_on_me = None
 
     def update(self):
-        self.hp *= self.level
-        self.damage *= self.level
-        self.damage_resistance *= self.level
+        self.hp *= self.level * 0.6
+        self.damage_resistance *= self.level * 0.8
         self.xp = self.hp * self.damage * self.level * 0.1
         self.sit_down_tile()
 

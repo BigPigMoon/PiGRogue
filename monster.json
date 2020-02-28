@@ -1,35 +1,24 @@
 {
   "monsters" : [
     {
-      "name" : "мЫшь ",
-      "color" : "255 101 67 33",
-      "damage": 0.2,
-      "hp": 2,
-      "dam_resist" : 0.1
-    },
-
-    {
-      "name" : "Медведь ",
-      "color" : "255 101 67 33",
-      "damage": 3,
-      "hp": 6,
-      "dam_resist" : 0.3
-    },
-
-    {
-      "name" : "банДит ",
+      "name" : "Бандит",
       "color" : "255 255 0 0",
-      "damage": 1,
-      "hp": 30,
+      "hp": 40,
       "dam_resist" : 0.5
     },
 
     {
-      "name" : "Утопленник ",
-      "color" : "255 0 0 255",
-      "damage": 2,
-      "hp": 40,
-      "dam_resist" : 0.8
+      "name" : "Разбойник",
+      "color" : "255 255 0 0",
+      "hp": 20,
+      "dam_resist" : 0.3
+    },
+
+    {
+      "name" : "Громила",
+      "color" : "255 255 0 0",
+      "hp": 60,
+      "dam_resist" : 1
     }
   ]
 }
