@@ -42,6 +42,7 @@ class Map:
                     self.world[i][j].create_dungeon_enter()
 
                 self.world[i][j].spawn_entities()
+                self.world[i][j].spawn_weapon()
 
     def create_area(self, tile, radius, chunk_x, chunk_y):
         i = randint(0, self.chunk_size)

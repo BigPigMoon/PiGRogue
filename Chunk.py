@@ -2,6 +2,7 @@ from random import randint, choice
 from copy import copy
 
 from Monsters import *
+from Weapon import gen_weapon
 from GenDungeon import Dungeon
 from Tile import Tile
 
@@ -38,6 +39,19 @@ class Chunk:
             self.entities[-1].x, self.entities[-1].y = x, y
             self.entities[-1].update()
 
-    def update(self):
+    def spawn_weapon(self):
+        for _ in range(randint(10, 20)):
+            while True:
+                x, y = randint(2, self.size - 2), randint(2, self.size - 2)
+                if not self.area[x][y].block and not self.area[x][y].item_on_me:
+                    break
+
+            self.area[x][y].item_on_me = gen_weapon()
+
+    def update(self, player):
         for entity in self.entities:
             entity.move(randint(-1, 1), randint(-1, 1))
+
+        if self.area[player.x][player.y].item_on_me is not None:
+            player.inventory.items.append(self.area[player.x][player.y].item_on_me)
+            self.area[player.x][player.y].item_on_me = None

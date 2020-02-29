@@ -48,6 +48,13 @@ class View:
                 except AttributeError:
                     char = cell.type[-1]
                 terminal.put(x, y, char)
+
+                terminal.layer(3)
+                terminal.color("red")
+                if chunk.area[i][j].item_on_me is not None:
+                    terminal.put(x, y, 'I')
+                terminal.layer(1)
+
                 x += 1
             y += 1
             x = 0

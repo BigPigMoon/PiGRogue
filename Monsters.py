@@ -6,7 +6,7 @@ from Entity import Entity
 def get_monster_pack():
     monster_pack = []
 
-    file = open("monster.json", 'r', encoding="utf-8")
+    file = open("Jsons/monster.json", 'r', encoding="utf-8")
     monster_json = json.load(file)
     file.close()
 

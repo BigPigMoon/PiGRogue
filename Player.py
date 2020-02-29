@@ -1,5 +1,7 @@
 from bearlibterminal import terminal
 
+from Inventory import Inventory
+
 
 class Player:
     def __init__(self, x=0, y=0):
@@ -13,6 +15,8 @@ class Player:
         self.damage = 1
         self.level = 1
         self.damage_resistance = 0.5
+
+        self.inventory = Inventory()
 
     def draw(self, x, y):
         terminal.layer(10)

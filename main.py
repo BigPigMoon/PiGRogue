@@ -38,7 +38,7 @@ class Game:
                 self.turn_counter += 1
 
                 if self.player.status == -1:
-                    self.load_chunk.update()
+                    self.load_chunk.update(self.player)
                 else:
                     self.load_chunk.dungeon.floors[self.player.status].update()
                     self.player.area = self.load_chunk.dungeon.floors[self.player.status].area
@@ -58,6 +58,9 @@ class Game:
             if self.attack_mode.mode_bool:
                 self.attack_mode.draw(self.view.x, self.view.y)
 
+            if self.player.inventory.var_bool:
+                self.player.inventory.draw()
+
             self.player.check_dungeon(self.load_chunk)
 
             self.view.update()
@@ -76,9 +79,11 @@ class Game:
             key = terminal.read()
 
             if key == terminal.TK_ESCAPE or key == terminal.TK_CLOSE:
-                if self.view_mode.mode_bool or self.attack_mode.mode_bool:
+                if self.view_mode.mode_bool or self.attack_mode.mode_bool or\
+                        self.player.inventory.var_bool:
                     self.view_mode.mode_bool = False
                     self.attack_mode.mode_bool = False
+                    self.player.inventory.var_bool = False
                     self.view.target = self.player
                 else:
                     self.game_flag = False
@@ -88,6 +93,8 @@ class Game:
                 moved_body = self.view_mode
             elif self.attack_mode.mode_bool:
                 moved_body = self.attack_mode
+            elif self.player.inventory.var_bool:
+                moved_body = self.player.inventory
             else:
                 moved_body = self.player
 
@@ -188,6 +195,13 @@ class Game:
                 self.view.target = self.player
                 self.attack_mode.mode_bool = False
                 return True
+
+            if key == terminal.TK_I:
+                if not self.player.inventory.var_bool:
+                    self.player.inventory.var_bool = True
+                    self.player.inventory.cursor = 0
+                else:
+                    self.player.inventory.var_bool = False
 
             return False
 

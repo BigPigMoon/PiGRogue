@@ -42,3 +42,7 @@ class ViewMode:
                 51, 7,
                 f"damage resistance: {inform.entity_on_me.damage_resistance}"
             )
+
+        if inform.item_on_me is not None:
+            terminal.printf(51, 3, f"name: {inform.item_on_me.name}")
+            terminal.printf(51, 4, f"damage: {inform.item_on_me.damage}")
