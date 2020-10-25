@@ -6,5 +6,5 @@ class AttackMode(ViewMode):
         super().__init__()
         self.color = "orange"
 
-    def attack(self):
+    def fire(self):
         print("attack")

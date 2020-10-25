@@ -8,11 +8,12 @@ from Rect import Rect
 
 
 class Dungeon:
-    def __init__(self, size):
+    def __init__(self, size, min_level):
         self.floors = list()
         self.floor_num = 0
         self.floor_size = size
-        self.max_floor_num = random.randint(3, 8)
+        self.max_floor_num = random.randint(5, 15)
+        self.min_level = min_level
         for i in range(self.max_floor_num):
             self.create_level(i)
 
@@ -41,16 +42,16 @@ class Dungeon:
         floor[end.x1][end.y1] = Tile("eXit", "blue", False)
         floor[start.x1][start.y1] = Tile("Enter", "blue", False)
 
-        self.floors.append(Floor(floor, start, end, rooms, self.floor_size))
-        self.floors[-1].spawn_entities()
+        self.floors.append(Floor(floor, start, end, rooms,
+                                 self.floor_size, self.min_level))
 
     def create_main(self, rooms, tonels, floor, i):
         """Главный Алгоритм который создает уровень(этаж)."""
-        for i in range(self.floor_size // 6 * (i + 1)):  # Число модов
+        for i in range(self.floor_size // (self.floor_size // 4) * (i + 1)):
             failed = False
             while not failed:
-                w = random.randint(3, 6)
-                h = random.randint(3, 6)
+                w = random.randint(5, self.floor_size // 8)
+                h = random.randint(5, self.floor_size // 8)
                 direct = random.randint(1, 4)
                 if i % 3 != 0:  # Две комнаты на один тонель
                     # Делаем комнату
@@ -143,8 +144,8 @@ class Dungeon:
         first_room = False
         while not first_room:
             direct = random.randint(1, 4)
-            w = random.randint(3, 6)
-            h = random.randint(3, 6)
+            w = random.randint(3, self.floor_size // 5)
+            h = random.randint(3, self.floor_size // 5)
 
             if direct in {1, 3}:
                 mid = int(w/2)

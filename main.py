@@ -18,11 +18,11 @@ class Game:
         self.view = View(self.player)
         self.attack_mode = AttackMode()
         self.view_mode = ViewMode()
-        self.map = Map()
-
-        self.chunk_size = self.map.chunk_size
         self.chunk_x = 2
         self.chunk_y = 2
+        self.map = Map(self.chunk_x, self.chunk_y)
+
+        self.chunk_size = self.map.chunk_size
         self.load_chunk = self.map.world[self.chunk_x][self.chunk_y]
 
         self.player.area = self.load_chunk.area
@@ -40,16 +40,22 @@ class Game:
                 if self.player.status == -1:
                     self.load_chunk.update(self.player)
                 else:
-                    self.load_chunk.dungeon.floors[self.player.status].update()
-                    self.player.area = self.load_chunk.dungeon.floors[self.player.status].area
+                    self.load_chunk.dungeon.floors[self.player.status].update(
+                        self.player)
 
             if self.player.status == -1:
                 self.view.draw(self.load_chunk)
+                self.player.area = self.load_chunk.area
             else:
                 self.view.draw(
                     self.load_chunk.dungeon.floors[self.player.status]
                 )
-                terminal.printf(52, 5, f"floor {self.player.status + 1}")
+                terminal.printf(52, 49, f"floor {self.player.status + 1}")
+                self.player.area = self.load_chunk.dungeon.floors[
+                    self.player.status].area
+
+            terminal.printf(51, 10, f"{self.load_chunk.min_level=}")
+            terminal.printf(51, 11, f"{self.load_chunk.max_level=}")
 
             if self.view_mode.mode_bool:
                 self.view_mode.draw(self.view.x, self.view.y)
@@ -78,7 +84,10 @@ class Game:
         if terminal.has_input():
             key = terminal.read()
 
-            if key == terminal.TK_ESCAPE or key == terminal.TK_CLOSE:
+            if key == terminal.TK_CLOSE:
+                self.game_flag = False
+
+            if key == terminal.TK_ESCAPE:
                 if self.view_mode.mode_bool or self.attack_mode.mode_bool or\
                         self.player.inventory.var_bool:
                     self.view_mode.mode_bool = False
@@ -181,8 +190,7 @@ class Game:
                                                   self.load_chunk)
 
                     if self.player.status >= 0:
-                        self.attack_mode.chunk = self.load_chunk.dungeon.floors
-                        [self.player.status]
+                        self.attack_mode.chunk = self.load_chunk.dungeon.floors[self.player.status]
                     self.view_mode.mode_bool = False
                     self.attack_mode.mode_bool = True
                     self.view.target = self.attack_mode
@@ -191,7 +199,7 @@ class Game:
                     self.attack_mode.mode_bool = False
 
             if self.attack_mode.mode_bool and key == terminal.TK_ENTER:
-                self.attack_mode.attack()
+                self.attack_mode.fire()
                 self.view.target = self.player
                 self.attack_mode.mode_bool = False
                 return True
@@ -207,7 +215,6 @@ class Game:
 
     def update_chunk(self, chunk_x, chunk_y):
         num_chunk = self.map.chunk_num
-
         if chunk_x == 0:
             self.chunk_y += chunk_y
 
@@ -254,6 +261,7 @@ class Game:
                 self.player.x = self.chunk_size - 1
 
             self.player.area = self.load_chunk.area
+            self.player.sit_down_tile()
 
 
 if __name__ == "__main__":

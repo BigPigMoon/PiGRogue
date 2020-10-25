@@ -1,24 +1,24 @@
 {
     "bases" : [
         {
-            "dm" : 0,
-            "sp" : 0,
-            "ds" : 0,
-            "ac" : 0
+            "dm" : 4,
+            "sp" : 2,
+            "ds" : 3,
+            "ac" : 4
         }
     ],
 
     "magazines" : [
         {
-            "rl_sp" : 0,
-            "size" : 0
+            "rl_sp" : 4,
+            "size" : 2
         }
     ],
 
     "grips" : [
         {
-            "ac" : 0,
-            "rl_sp" : 0
+            "ac" : 1,
+            "rl_sp" : 3
         }
     ],
 

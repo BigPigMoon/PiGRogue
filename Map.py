@@ -6,19 +6,24 @@ from Chunk import Chunk
 
 
 class Map:
-    def __init__(self):
-        self.chunk_num = 5
-        self.chunk_size = 64
+    def __init__(self, sch_x, sch_y):
+        self.chunk_num = 10
+        self.chunk_size = 128
         self.world = [
             [Chunk(self.chunk_size) for _ in range(self.chunk_num)]
             for _ in range(self.chunk_num)
         ]
 
-        self.create_world()
+        self.create_world(sch_x, sch_y)
 
-    def create_world(self):
+    def create_world(self, sch_x, sch_y):
         for i in range(self.chunk_num):
             for j in range(self.chunk_num):
+                self.world[i][j].chunk_x, self.world[i][j].chunk_y = i, j
+                self.world[i][j].start_x = sch_x
+                self.world[i][j].start_y = sch_y
+                self.world[i][j].upgrade()
+
                 self.world[i][j].area = [
                     [Tile("Grass", "white", False)
                      for _ in range(self.chunk_size)]
@@ -42,7 +47,7 @@ class Map:
                     self.world[i][j].create_dungeon_enter()
 
                 self.world[i][j].spawn_entities()
-                self.world[i][j].spawn_weapon()
+                # self.world[i][j].spawn_weapons()
 
     def create_area(self, tile, radius, chunk_x, chunk_y):
         i = randint(0, self.chunk_size)

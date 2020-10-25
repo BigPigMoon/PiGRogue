@@ -26,7 +26,13 @@ class Player:
         terminal.layer(0)
 
     def sit_down_tile(self):
-        self.area[self.x][self.y].entity_on_me = self
+        try:
+            self.area[self.x][self.y].entity_on_me = self
+        except IndexError as e:
+            try:
+                self.area[0][self.y].entity_on_me = self
+            except IndexError as e:
+                self.area[self.x][0].entity_on_me = self
 
     def stand_up_tile(self):
         self.area[self.x][self.y].entity_on_me = None
@@ -84,8 +90,8 @@ class Player:
                     self.droper(dungeon.floors[self.status].area)
 
     def droper(self, area):
+        # TODO исправить is False на not
         self.stand_up_tile()
-
         if area[self.x][self.y + 1].block is False:
             self.y += 1
         elif area[self.x][self.y - 1].block is False:
@@ -94,5 +100,4 @@ class Player:
             self.x += 1
         elif area[self.x - 1][self.y].block is False:
             self.x -= 1
-
         self.sit_down_tile()

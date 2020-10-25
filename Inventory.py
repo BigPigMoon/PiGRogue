@@ -5,26 +5,45 @@ from bearlibterminal import terminal
 
 class InfoWindow(Dialog):
     def __init__(self):
-        super().__init__(40, 40)
+        super().__init__(60, 40)
+        self.draw_x = 0
 
     def move(self, dx, dy):
         super().move(dx, dy)
 
     def draw(self, item):
         super().draw()
-        terminal.printf(self.x + 2, self.y + 2, f"\t{item.name}")
-        terminal.printf(self.x + 2, self.y + 3, f"Урон: {item.damage}")
-        terminal.printf(self.x + 2, self.y + 4, "Информативынй Экран")
-        terminal.printf(self.x + 2, self.y + 5, "Информативынй Экран")
-        terminal.printf(self.x + 2, self.y + 6, "Информативынй Экран")
-        terminal.printf(self.x + 2, self.y + 7, "Информативынй Экран")
+        name = f"{item.name} от {item.corporation.name}"
+        self.draw_x = 0
+        terminal.printf(self.x + 1, self.y + 2, f"{name:-^58}")
+        self.print(f"уровень: {item.level}")
+        self.print(f"Урон: {item.damage:.1f}")
+        self.print(f"Скорость стрельбы: {item.speed} пуль за ход")
+        self.print(f"Дальность: {item.distance} клеток")
+        self.print(f"Точность: {item.accuracy:.1f}%")
+        self.print(f"Скорость перезарядки: {item.reload_speed} ход.")
+        self.print(f"Емкость: {item.size}")
+        self.print(f"Тип пуль: {item.bullet_type}")
+
+        s = "Конструкция"
+        self.draw_x += 4
+        terminal.printf(self.x + 1, self.y+self.draw_x + 1, f"{s:-^58}")
+        self.print(f"База: {item.base is not None}")
+        self.print(f"Ручка: {item.grip is not None}")
+        self.print(f"Ствол: {item.barrel is not None}")
+        self.print(f"Приклад: {item.butt is not None}")
+        self.print(f"Прицел: {item.sight is not None}")
+
+    def print(self, message):
+        terminal.printf(self.x + 2, self.y + 4 + self.draw_x, message)
+        self.draw_x += 1
 
 
 class InventoryDialog(Dialog):
     def __init__(self):
         super().__init__(20, 30)
         self.info = InfoWindow()
-        self.max_cursor = 2
+        self.max_cursor = 3
 
     def draw(self):
         if not self.info.var_bool:
@@ -32,6 +51,7 @@ class InventoryDialog(Dialog):
             terminal.put(self.x + 2, self.cursor + self.y + 2, '+')
             terminal.printf(self.x + 4, self.y + 2, "Информация")
             terminal.printf(self.x + 4, self.y + 3, "Экипировать")
+            terminal.printf(self.x + 4, self.y + 4, "Выкинуть")
         else:
             self.info.draw(self.item)
 
